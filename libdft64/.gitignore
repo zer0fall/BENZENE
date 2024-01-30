@@ -1,0 +1,5 @@
+obj-intel64
+*.o
+*.so
+*.log
+.vscode

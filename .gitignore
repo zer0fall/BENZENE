@@ -1,0 +1,13 @@
+*.o
+*.so
+*.txt
+.vscode
+.gdb_history
+*.log
+*.out
+core
+*.pyc
+tools
+out
+result_matrix.csv
+rev_data_flow.csv

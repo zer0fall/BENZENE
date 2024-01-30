@@ -1,0 +1,161 @@
+##############################################################
+#
+# This file includes all the test targets as well as all the
+# non-default build rules and test recipes.
+#
+##############################################################
+
+###### Additional includes that are specific to this directory ######
+
+# Placeholder for additional include files.
+
+
+##############################################################
+#
+# Test targets
+#
+##############################################################
+
+###### Place all generic definitions here ######
+
+# This defines tests which run tools of the same name.  This is simply for convenience to avoid
+# defining the test name twice (once in TOOL_ROOTS and again in TEST_ROOTS).
+# Tests defined here should not be defined in TOOL_ROOTS and TEST_ROOTS.
+TEST_TOOL_ROOTS := 
+
+# This defines the tests to be run that were not already defined in TEST_TOOL_ROOTS.
+TEST_ROOTS := 
+
+# This defines the tools which will be run during the the tests, and were not already defined in
+# TEST_TOOL_ROOTS.
+TOOL_ROOTS := dynvfg test
+
+# This defines the static analysis tools which will be run during the the tests. They should not
+# be defined in TEST_TOOL_ROOTS. If a test with the same name exists, it should be defined in
+# TEST_ROOTS.
+# Note: Static analysis tools are in fact executables linked with the Pin Static Analysis Library.
+# This library provides a subset of the Pin APIs which allows the tool to perform static analysis
+# of an application or dll. Pin itself is not used when this tool runs.
+SA_TOOL_ROOTS :=
+
+# This defines all the applications that will be run during the tests.
+APP_ROOTS := 
+
+# This defines any additional object files that need to be compiled.
+OBJECT_ROOTS := vfg_modules \
+                fn_base \
+				linux_fn \
+				callstack_manager \
+				cJSON \
+                vfg
+
+VALUE_OBJ_NAME  = value_core val_binary_op val_xfer_op val_unitary_op val_lea_op val_movsx_op val_cmp_op val_shift_op
+VFG_OBJ_NAME    = vfg_nodes vfg
+
+OBJECT_ROOTS += $(VALUE_OBJ_NAME)
+OBJECT_ROOTS += $(VFG_OBJ_NAME)
+
+# This defines any additional dlls (shared objects), other than the pintools, that need to be compiled.
+DLL_ROOTS :=
+
+# This defines any static libraries (archives), that need to be built.
+LIB_ROOTS := 
+
+###### Place architecture-specific definitions here ######
+
+# Place ia32-specific definitions here if they apply to all supported operating systems.
+ifeq ($(TARGET),ia32)
+    TOOL_CXXFLAGS += -m32 -Wno-deprecated-declarations -Wno-unused-value
+    LIBDFT_INC_PATH	= $(realpath ../../src32/)
+    LIBDFT_PATH	= $(realpath ../../src32/obj-ia32/)
+endif
+
+# Place intel64-specific definitions here if they apply to all supported operating systems.
+ifeq ($(TARGET),intel64)
+	TOOL_CXXFLAGS += -Wno-deprecated-declarations -Wno-unused-value
+    LIBDFT_INC_PATH	= $(realpath ../../libdft64/src/)
+    LIBDFT_PATH	= $(realpath ../../libdft64/src/obj-intel64/)
+endif
+
+##############################################################
+#
+# Test recipes
+#
+##############################################################
+
+###### Finalize sanity here ######
+
+# This section contains recipes for tests other than the default.
+# See makefile.default.rules for the default test rules.
+# All tests in this section should adhere to the naming convention: <testname>.test
+
+
+##############################################################
+#
+# Build rules
+#
+##############################################################
+
+# This section contains the build rules for all binaries that have special build rules.
+# See makefile.default.rules for the default build rules.
+
+###### Special tools' build rules ######
+
+ 
+LOGGING_FLAGS = -DNO_PINTOOL_LOG $(BENZENE_DEBUG_FLAGS) #-DDEBUG_LOG
+TOOL_CXXFLAGS += -g $(LOGGING_FLAGS) -I$(LIBDFT_INC_PATH) -L$(LIBDFT_PATH) -L$(PIN_ROOT)/extras/xed-intel64/lib
+TOOL_LIBS += -L$(LIBDFT_PATH) -ldft
+
+ALL_OBJS = $(OBJECT_ROOTS:%=$(OBJDIR)%$(OBJ_SUFFIX))
+
+
+
+#### Special builds for dynvfg.so ####
+
+DYNVFG_OBJ_NAME =  fn_base linux_fn callstack_manager dynvfg vfg_modules cJSON main
+DYNVFG_OBJ_NAME += $(VALUE_OBJ_NAME)
+DYNVFG_OBJ_NAME += $(VFG_OBJ_NAME)
+DYNVFG_OBJS = $(DYNVFG_OBJ_NAME:%=$(OBJDIR)%$(OBJ_SUFFIX))
+
+$(OBJDIR)dynvfg.so: $(DYNVFG_OBJS)
+	$(LINKER) $(TOOL_LDFLAGS) $(LINK_EXE)$@ $(DYNVFG_OBJS) $(TOOL_LPATHS) $(TOOL_LIBS)
+
+
+#### Special builds for track.so ####
+
+TRACK_OBJ_NAME = vfg_modules fn_base linux_fn callstack_manager track
+TRACK_OBJS = $(TRACK_OBJ_NAME:%=$(OBJDIR)%$(OBJ_SUFFIX))
+
+$(OBJDIR)track.so: $(TRACK_OBJS)
+	$(LINKER) $(TOOL_LDFLAGS) $(LINK_EXE)$@ $(TRACK_OBJS) $(TOOL_LPATHS) $(TOOL_LIBS)
+
+
+# TEST_OBJ_NAME = test
+# TEST_OBJS = $(TEST_OBJ_NAME:%=$(OBJDIR)%$(OBJ_SUFFIX))
+
+# $(OBJDIR)test.so: $(TEST_OBJS)
+#	 $(LINKER) $(TOOL_LDFLAGS) $(LINK_EXE)$@ $(TEST_OBJS) $(TOOL_LPATHS) $(TOOL_LIBS)
+
+
+CALLSTACK_OBJ_NAME =  fn_base linux_fn callstack_manager whitelist callstack
+CALLSTACK_OBJ_NAME += $(VALUE_OBJ_NAME)
+CALLSTACK_OBJ_NAME += $(VFG_OBJ_NAME)
+CALLSTACK_OBJ = $(CALLSTACK_OBJ_NAME:%=$(OBJDIR)%$(OBJ_SUFFIX))
+
+$(OBJDIR)callstack.so: $(CALLSTACK_OBJ)
+	$(LINKER) $(TOOL_LDFLAGS) $(LINK_EXE)$@ $(CALLSTACK_OBJ) $(TOOL_LPATHS) $(TOOL_LIBS)
+
+
+vfg:
+	mkdir -p obj-intel64
+	$(MAKE) TARGET=intel64 obj-intel64/dynvfg.so
+
+	mkdir -p ../../tools
+	cp obj-intel64/dynvfg.so ../../tools/dynvfg.so
+
+callstack:
+	mkdir -p obj-intel64
+	$(MAKE) TARGET=intel64 obj-intel64/callstack.so
+
+	mkdir -p ../../tools
+	cp obj-intel64/callstack.so ../../tools/callstack.so	

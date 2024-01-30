@@ -1,0 +1,5 @@
+build
+build_debug
+dynamorio
+*.pb.cc
+*.pb.h

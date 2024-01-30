@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# set BENZENE_HOME environment variable
+if [[ -z "${BENZENE_HOME}" ]]; then
+    BASEDIR=$(dirname "$0")
+    export BENZENE_HOME="$BASEDIR"
+fi
+
+# check PIN_ROOT env
+if [[ -z "${PIN_ROOT}" ]]; then
+    export PIN_ROOT="$BENZENE_HOME/pin-3.21"
+fi
+
+# check DR_BUILD env
+if [[ -z "${DR_BUILD}" ]]; then
+    export DR_BUILD="$BENZENE_HOME/dr-build"
+fi
+
+
+python3 $BENZENE_HOME/src/benzene.py "$@"
