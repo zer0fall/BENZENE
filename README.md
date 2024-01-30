@@ -78,7 +78,15 @@ $BENZENE_HOME/benzene --cmd '/some/path/crashme poc' --proc -j$(nproc)
 
 The following commands present how to run BENZENE against CVE-2013-7226, the type confusion vulnerability in PHP.
 
-Note that `setup.sh` automatically setups the environment for CVE-2013-7226.
+To get started, one first need to build PHP project as follows:
+
+```sh
+# build the testcase CVE-2013-7226
+cd $BENZENE_HOME/example/cve-2013-7226
+wget http://museum.php.net/php5/php-5.5.0.tar.gz && tar xvfz php-5.5.0.tar.gz
+cd $BENZENE_HOME/example/cve-2013-7226/php-5.5.0
+./configure --with-gd && make -j$(nproc)
+```
 
 In this scenario, target executable is located in `$BENZENE_HOME/example/cve-2013-7226/php-5.5.0/sapi/cli/php` and the crashing input is `poc.php`.
 
@@ -112,7 +120,7 @@ After the analysis, one can check the results as below.
 
 The top ranked predicate (#1) suspects that CVE-2013-7226's root cause is located in the offset `0x1da38a` when the condition `eax >= 0xb151a001` satisfies.
 
-To further inspect the analysis result, one can use RR (or gdb) and debug symbol as follows.
+To further inspect the analysis result, one can use RR (or gdb) and debug symbols as follows.
 
 Note that the base address of PHP is `0x555555554000`.
 
@@ -129,7 +137,7 @@ Breakpoint 1, 0x000055555572e38a in zif_imagecrop (ht=<optimized out>, return_va
 ...
 ```
 
-As shown above, the offset `0x1da38a` corresponds to the source line `rect.x = Z_LVAL_PP(tmp);`, which is the root cause of type confusion bug, CVE-2013-7226.
+As shown above, the offset `0x1da38a` corresponds to the source line `rect.x = Z_LVAL_PP(tmp);`, which is the root cause of the type confusion bug, CVE-2013-7226.
 
 
 ## Docker
@@ -165,8 +173,8 @@ The following commands present how to run BENZENE against CVE-2013-7226, PHP's t
 
 ```sh
 # In the docker container
-cd /Benzene/example/cve-2013-7226
-/Benzene/benzene --cmd 'php-5.5.0/sapi/cli/php poc.php' --proc $(nproc)
+cd /benzene/example/cve-2013-7226
+/benzene/benzene --cmd 'php-5.5.0/sapi/cli/php poc.php' --proc $(nproc)
 ```
 
 

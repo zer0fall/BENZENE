@@ -48,14 +48,4 @@ ln -s /usr/bin/python3 python # make our gdb use python3, not python2
 ./configure --with-python=$BENZENE_HOME/gdb-11.2 --with-separate-debug-dir=/usr/lib/debug && make -j$(nproc)
 make -j$(nproc)
 ln -s $BENZENE_HOME/gdb-11.2/gdb/gdb $BENZENE_HOME/tools/gdb
-# sudo make install
 
-
-# build the testcase CVE-2013-7226
-cd $BENZENE_HOME/example/cve-2013-7226
-wget http://museum.php.net/php5/php-5.5.0.tar.gz && tar xvfz php-5.5.0.tar.gz
-cd $BENZENE_HOME/example/cve-2013-7226/php-5.5.0
-./configure --with-gd && make -j$(nproc)
-
-
-cd $BENZENE_HOME
