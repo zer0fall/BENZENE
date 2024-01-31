@@ -40,6 +40,9 @@ BENZENE
 |-- README.md
 ```
 
+* Please note that our libdft64 is based on prior great works ([libdft](https://www.cs.columbia.edu/~vpk/research/libdft/), [angora](https://github.com/AngoraFuzzer/Angora)). 
+
+
 ## Setup
 
 BENZENE is currently tested on Ubuntu 20.04 LTS environment.
