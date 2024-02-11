@@ -10,7 +10,7 @@ This repository is a prototype implementation of our IEEE S&P '24 (Oakland) [pap
   author={Park, Younggi and Lee, Hwiwon and Jung, Jinho and Koo, Hyungjoon and Kim, Huy Kang},
   booktitle={2024 IEEE Symposium on Security and Privacy (SP)},
   pages={74--74},
-  year={2023},
+  year={2024},
   organization={IEEE Computer Society}
 }
 ```
